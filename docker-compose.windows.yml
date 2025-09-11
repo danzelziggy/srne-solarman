@@ -1,0 +1,13 @@
+# Windows Docker Compose example for Home Assistant (adjust paths as needed)
+version: '3.8'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "8123:8123"
+    volumes:
+      - "C:\\solarman\\homeassistant_config:/config"
+    environment:
+      - TZ=Asia/Singapore
+    restart: unless-stopped
