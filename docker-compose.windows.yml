@@ -1,0 +1,15 @@
+# Windows Docker Compose configuration for Home Assistant
+# This file is used by the setup script - edit only if you know what you're doing!
+
+version: '3.8'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "8123:8123"  # Access Home Assistant at http://localhost:8123
+    volumes:
+      - "C:\\solarman\\homeassistant_config:/config"  # Your configuration files (Windows path)
+    environment:
+      - TZ=Asia/Singapore  # Change this to your timezone (e.g., America/New_York, Europe/London)
+    restart: unless-stopped  # Automatically restart if it crashes or PC reboots
