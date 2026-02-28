@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    ports:
+      - "8123:8123"  # Access Home Assistant at http://localhost:8123
+    volumes:
+      - /root/solarman/homeassistant_config:/config  # Your configuration files
+      - /etc/localtime:/etc/localtime:ro  # Match system time
+    environment:
+      - TZ=Asia/Singapore  # Change this to your timezone (e.g., America/New_York, Europe/London)
+    restart: unless-stopped  # Automatically restart if it crashes or system reboots

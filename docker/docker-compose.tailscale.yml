@@ -1,0 +1,58 @@
+# Docker Compose configuration with Tailscale for Home Assistant
+# This enables secure remote access to your Home Assistant instance
+# 
+# IMPORTANT: Before using this file:
+# 1. Copy .env.example to .env
+# 2. Replace TS_AUTHKEY with a valid Tailscale auth key from https://login.tailscale.com/admin/settings/keys
+# 3. Optionally customize TS_HOSTNAME and TS_EXTRA_ARGS
+
+version: '3.8'
+
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    network_mode: "service:tailscale"
+    volumes:
+      - /root/solarman/homeassistant_config:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Singapore
+    restart: unless-stopped
+    depends_on:
+      - tailscale
+
+  tailscale:
+    container_name: tailscale
+    image: tailscale/tailscale:latest
+    hostname: ${TS_HOSTNAME:-homeassistant}
+    environment:
+      # IMPORTANT: Set TS_AUTHKEY in .env file
+      # Get auth key from: https://login.tailscale.com/admin/settings/keys
+      # ERROR: Please copy .env.example to .env and set TS_AUTHKEY with a valid key from login.tailscale.com/admin/settings/keys (example: tskey-auth-XXXXX)
+      - TS_AUTHKEY=${TS_AUTHKEY:?Please copy .env.example to .env and set TS_AUTHKEY with a valid Tailscale auth key from https://login.tailscale.com/admin/settings/keys}
+      - TS_HOSTNAME=${TS_HOSTNAME:-homeassistant}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+      - TS_ACCEPT_DNS=true
+      - TS_EXTRA_ARGS=${TS_EXTRA_ARGS:-}
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    ports:
+      - "8123:8123"
+    restart: unless-stopped
+    # Health check to ensure Tailscale is running properly
+    healthcheck:
+      test: ["CMD", "tailscale", "status", "--json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  tailscale-state:
+    driver: local

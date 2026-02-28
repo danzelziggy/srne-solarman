@@ -1,0 +1,9 @@
+.env
+.env.local
+.DS_Store
+node_modules/
+__pycache__/
+.idea/
+tests/
+tests-results/
+
